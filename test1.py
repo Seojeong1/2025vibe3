@@ -33,23 +33,18 @@ st.markdown(
         text-align: center;
         margin-top: 20px;
     }
-    .emoji {
-        font-size: 80px;
-        text-align: center;
-        margin-top: 30px;
-    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# 세션 상태 초기화
+# 세션 초기화
 if "user_score" not in st.session_state:
     st.session_state.user_score = 0
 if "computer_score" not in st.session_state:
     st.session_state.computer_score = 0
 
-# 타이틀 출력
+# 타이틀
 st.markdown('<div class="title">✊✋✌️ 가위바위보 게임</div>', unsafe_allow_html=True)
 st.write("당신은 무엇을 선택하시겠습니까?")
 
@@ -78,17 +73,16 @@ if st.button("🎮 대결!"):
 
     st.markdown(f'<div class="result">🏆 결과: {result}</div>', unsafe_allow_html=True)
 
-    # 🎉 애니메이션 느낌 처리 (임시 출력 후 사라짐)
-    anim_spot = st.empty()
-
+    # 애니메이션 영역
+    gif_area = st.empty()
     if result_type == "win":
-        anim_spot.markdown('<div class="emoji">🎉🎉🎉</div>', unsafe_allow_html=True)
-        time.sleep(2)
-        anim_spot.empty()
+        gif_area.image("https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif", caption="🎉 축하합니다!", use_column_width=True)
     elif result_type == "lose":
-        anim_spot.image("https://i.imgur.com/OuFAcUj.png", width=300)
-        time.sleep(2)
-        anim_spot.empty()
+        gif_area.image("https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif", caption="😭 너무 슬퍼요...", use_column_width=True)
+    
+    # 2초 후 지우기
+    time.sleep(2)
+    gif_area.empty()
 
 # 점수판
 st.markdown(
@@ -101,7 +95,8 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 점수 초기화 버튼
+# 점수 초기화
 if st.button("🔄 점수 초기화"):
     st.session_state.user_score = 0
-    st.s
+    st.session_state.computer_score = 0
+    st.success("점수가 초기화되었습니다!")
