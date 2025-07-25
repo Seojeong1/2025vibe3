@@ -123,3 +123,16 @@ with st.expander("📌 북마크 목록 보기"):
             st.caption(marker["description"])
     else:
         st.info("해당 카테고리에 대한 북마크가 없습니다.")
+# 이모지 선택 리스트 (카테고리별 대표 이모지)
+emoji_options = [
+    "🍕", "☕", "🌳", "🏖️", "🎡", "🏥", "🏠", "📍", "🗺️", "⭐", "🍽️", "🚶", "🎒", "📚", "🛒"
+]
+
+col1, col2 = st.columns([2, 1])
+with col1:
+    emoji = st.selectbox("이모지 선택", options=[""] + emoji_options, index=0)
+with col2:
+    emoji_custom = st.text_input("직접 입력", "")
+
+# 최종 이모지는 선택 or 직접입력
+final_emoji = emoji_custom if emoji_custom.strip() else emoji
