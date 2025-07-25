@@ -4,26 +4,32 @@ import folium
 from geopy.geocoders import Nominatim
 
 # 페이지 설정
-st.set_page_config(page_title="주소 기반 북마크 지도", layout="wide")
-st.title("📍 주소로 나만의 북마크 지도 만들기")
+st.set_page_config(page_title="이모지 북마크 지도", layout="wide")
+st.title("📍 나만의 이모지 북마크 지도 만들기")
 
 # 지오코더 초기화
-geolocator = Nominatim(user_agent="bookmark_app")
+geolocator = Nominatim(user_agent="emoji_bookmark_map")
 
 # 세션 상태 초기화
 if "markers" not in st.session_state:
     st.session_state.markers = []
 
-# 기본 지도 위치 (서울)
+# 기본 위치 (서울)
 default_lat = 37.5665
 default_lon = 126.9780
 
-# 북마크 추가 폼
+# 입력 폼
 with st.form("bookmark_form"):
     st.subheader("📝 북마크 추가")
+
     place = st.text_input("장소 이름", "")
     address = st.text_input("주소", "")
     description = st.text_area("설명", "")
+
+    # ✅ 카테고리 및 이모지 입력
+    category = st.selectbox("카테고리", ["음식점 🍽️", "카페 ☕", "공원 🌳", "여행지 🗺️", "기타 ⭐"])
+    emoji = st.text_input("이모지 (예: 🎡, 🏠, 🍕)", "")
+
     submitted = st.form_submit_button("추가하기")
 
     if submitted:
@@ -35,7 +41,10 @@ with st.form("bookmark_form"):
                 if location:
                     st.session_state.markers.append({
                         "place": place,
+                        "address": address,
                         "description": description,
+                        "category": category,
+                        "emoji": emoji,
                         "lat": location.latitude,
                         "lon": location.longitude
                     })
@@ -45,31 +54,39 @@ with st.form("bookmark_form"):
             except Exception as e:
                 st.error(f"❌ 오류 발생: {e}")
 
-# 지도 생성
+# 지도 중심 위치
 if st.session_state.markers:
-    map_center = [st.session_state.markers[-1]["lat"], st.session_state.markers[-1]["lon"]]
+    last = st.session_state.markers[-1]
+    map_center = [last["lat"], last["lon"]]
 else:
     map_center = [default_lat, default_lon]
 
+# 지도 생성
 m = folium.Map(location=map_center, zoom_start=12)
 
 # 마커 추가
 for marker in st.session_state.markers:
+    popup_html = f"""
+    <b>{marker['emoji']} {marker['place']}</b><br>
+    <i>{marker['category']}</i><br>
+    {marker['description']}<br>
+    <small>{marker['address']}</small>
+    """
     folium.Marker(
         location=[marker["lat"], marker["lon"]],
-        popup=f"<b>{marker['place']}</b><br>{marker['description']}",
-        tooltip=marker["place"],
+        popup=popup_html,
+        tooltip=f"{marker['emoji']} {marker['place']}",
         icon=folium.Icon(color="blue", icon="bookmark")
     ).add_to(m)
 
 # 지도 출력
 st_data = st_folium(m, width=900, height=600)
 
-# 북마크 목록
+# 목록 출력
 with st.expander("📌 북마크 목록 보기"):
     if st.session_state.markers:
         for i, marker in enumerate(st.session_state.markers, 1):
-            st.markdown(f"**{i}. {marker['place']}**  \n📍 위도: `{marker['lat']}`, 경도: `{marker['lon']}`")
+            st.markdown(f"**{i}. {marker['emoji']} {marker['place']}**  \n{marker['category']} - `{marker['lat']}, {marker['lon']}`")
             st.caption(marker["description"])
     else:
-        st.info("아직 북마크가 없습니다. 위에서 주소를 입력해 추가해보세요!")
+        st.info("북마크가 아직 없습니다.")
