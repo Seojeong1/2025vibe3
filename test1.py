@@ -1,10 +1,10 @@
 import streamlit as st
 import random
 
-# 페이지 설정
+# === 페이지 설정 ===
 st.set_page_config(page_title="가위바위보 게임", page_icon="✊", layout="centered")
 
-# 사용자 정의 테마
+# === 사용자 정의 CSS 스타일 ===
 st.markdown(
     """
     <style>
@@ -30,33 +30,35 @@ st.markdown(
         font-weight: bold;
         color: #8B0000;
         text-align: center;
+        margin-top: 20px;
     }
     .emoji {
         font-size: 60px;
         text-align: center;
+        margin-top: 20px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# 세션 초기화
+# === 점수 상태 초기화 ===
 if "user_score" not in st.session_state:
     st.session_state.user_score = 0
 if "computer_score" not in st.session_state:
     st.session_state.computer_score = 0
 
-# 제목
+# === 제목 표시 ===
 st.markdown('<div class="title">✊✋✌️ 가위바위보 게임</div>', unsafe_allow_html=True)
 st.write("당신은 무엇을 선택하시겠습니까?")
 
-# 선택
+# === 사용자 선택 ===
 choices = ["가위", "바위", "보"]
 user_choice = st.radio("🧑 당신의 선택:", choices, horizontal=True)
 
+# === 대결 버튼 ===
 if st.button("🎮 대결!"):
     computer_choice = random.choice(choices)
-
     st.write(f"### 💻 컴퓨터의 선택: {computer_choice}")
 
     if user_choice == computer_choice:
@@ -77,12 +79,4 @@ if st.button("🎮 대결!"):
 
     st.markdown(f'<div class="result">🏆 결과: {result}</div>', unsafe_allow_html=True)
 
-    # 결과별 이모지 / 이미지 출력
-    if result_type == "win":
-        st.markdown('<div class="emoji">🎉🎉🎉</div>', unsafe_allow_html=True)
-    elif result_type == "lose":
-        st.image("https://i.imgur.com/OuFAcUj.png", caption="너무 슬퍼요...", width=300)
-
-# 점수판
-st.markdown(
-    f""
+    # === 이겼을 때: 폭죽 이모지
