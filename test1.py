@@ -3,7 +3,7 @@ import datetime
 import calendar
 import re
 
-# 시간 추출 함수
+# 시간 추출
 def extract_time(text):
     patterns = [r"(\d{1,2})[:시](\d{1,2})", r"(\d{1,2})[:시]"]
     for pattern in patterns:
@@ -17,7 +17,7 @@ def extract_time(text):
                 pass
     return datetime.time(0, 0)
 
-# 체크리스트 UI
+# 체크리스트 함수
 def checklist_section(title, task_key):
     st.markdown(f"#### {title}")
     if "data" not in st.session_state:
@@ -55,7 +55,7 @@ selected_week_key = st.session_state.get("selected_week", None)
 month_calendar = calendar.Calendar(firstweekday=0).monthdatescalendar(year, month)
 days_of_week = ['월', '화', '수', '목', '금', '토', '일', 'Weekly']
 
-# 헤더
+# 요일 헤더
 cols = st.columns(8)
 for i, day in enumerate(days_of_week):
     cols[i].markdown(f"**{day}**")
@@ -65,7 +65,7 @@ for week in month_calendar:
     cols = st.columns(8)
     week_key = f"{week[0]}_week"
 
-    # 요일 날짜칸
+    # 날짜 칸
     for i in range(7):
         date = week[i]
         style = "color:lightgray;" if date.month != month else ""
@@ -73,16 +73,16 @@ for week in month_calendar:
         todo_key = f"{date}_todo"
         preview_lines = []
 
+        # 전체 일정 및 할일 표시
         if "data" in st.session_state:
-            # 일정 미리보기
             if plan_key in st.session_state["data"]:
-                items = st.session_state["data"][plan_key][:1]
-                preview_lines += [f"📌 {item['text'][:10]}" for item in items]
-            # 할 일 미리보기
+                plan_items = st.session_state["data"][plan_key]
+                preview_lines += [f"📌 {item['text']}" for item in plan_items]
             if todo_key in st.session_state["data"]:
-                items = st.session_state["data"][todo_key][:1]
-                preview_lines += [f"✅ {item['text'][:10]}" for item in items]
+                todo_items = st.session_state["data"][todo_key]
+                preview_lines += [f"✅ {item['text']}" for item in todo_items]
 
+        # 날짜 버튼
         if cols[i].button(f"{date.day}", key=str(date)):
             st.session_state["selected_date"] = date
             st.session_state["selected_week"] = None
@@ -92,22 +92,23 @@ for week in month_calendar:
         preview_text = "<br>".join(preview_lines)
         cols[i].markdown(f"<div style='font-size:12px; {style}'>{preview_text}</div>", unsafe_allow_html=True)
 
-    # Weekly 열 (버튼 대신 클릭용 링크 제공)
+    # Weekly 열 미리보기 (전체 표시)
     weekly_preview = ""
     if "data" in st.session_state and week_key in st.session_state["data"]:
-        preview_items = st.session_state["data"][week_key][:2]
-        weekly_preview = "<br>".join([f"• {item['text'][:15]}" for item in preview_items])
-    if cols[7].button(" ", key=week_key):  # 빈 버튼 (공백)
+        preview_items = st.session_state["data"][week_key]
+        weekly_preview = "<br>".join([f"• {item['text']}" for item in preview_items])
+
+    if cols[7].button(" ", key=week_key):
         st.session_state["selected_week"] = week_key
         st.session_state["selected_date"] = None
         selected_week_key = week_key
         selected_date = None
     cols[7].markdown(f"<div style='font-size:12px'>{weekly_preview}</div>", unsafe_allow_html=True)
 
-# 탭 형태 선택창
+# 보기 탭
 tab = st.radio("보기 선택", ["일간", "주간"], horizontal=True)
 
-# 출력
+# 보기 출력
 st.markdown("---")
 if tab == "일간" and selected_date:
     st.header(f"🗓️ {selected_date.strftime('%Y년 %m월 %d일')} 일정")
